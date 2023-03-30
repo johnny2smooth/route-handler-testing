@@ -1,27 +1,29 @@
-"use client";
-import { FormEvent } from "react";
-import styles from "./page.module.css";
+import styles from './page.module.css';
+import ClientForm from './client-form';
+import Image from 'next/image';
 
-export default function Home() {
-  async function handleSubmit(e: FormEvent<HTMLFormElement>) {
-    e.preventDefault();
-    let { prompt } = Object.fromEntries(new FormData(e.currentTarget));
+export const revalidate = 0;
 
-    let response = await fetch("api/hello", {
-      method: "POST",
-      body: JSON.stringify({ prompt }),
-    });
-
-    let string = await response.json();
-    console.log(string);
-  }
+export default async function Home() {
+  const reponse = await fetch('http://localhost:3000/api/hello', {
+    cache: 'no-cache',
+  });
+  let imageURLs = await reponse.json();
   return (
     <main className={styles.main}>
-      <form onSubmit={handleSubmit}>
-        <label htmlFor="prompt">Prompt</label>
-        <input type="text" name="prompt" id="prompt" />
-        <button type="submit">Submit</button>
-      </form>
+      <pre>{JSON.stringify(imageURLs, null, 2)}</pre>
+      <div style={{ display: 'flex', flexWrap: 'wrap', gap: '2em' }}>
+        {imageURLs.map((url: string) => (
+          <Image
+            key={url}
+            src={url}
+            alt={'a photo that my friend drew'}
+            width={100}
+            height={100}
+          />
+        ))}
+      </div>
+      <ClientForm />
     </main>
   );
 }
